@@ -1,0 +1,12 @@
+body {
+	background-color: var(--bg-color);
+}
+
+p {
+	font-family: sans-serif;
+	color: var(--text-color);
+}
+
+p span {
+	color: var(--accent-color);
+}
