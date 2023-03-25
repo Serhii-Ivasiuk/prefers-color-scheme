@@ -1,3 +1,5 @@
+const LOCALE_STORAGE_KEY = 'color-scheme';
+
 const refs = {
 	switcherRadios: document.querySelectorAll('.switcher__radio'),
 	switcher: document.querySelector('.switcher'),
@@ -5,51 +7,58 @@ const refs = {
 	dark: document.querySelector('[media="(prefers-color-scheme: dark)"]'),
 };
 
-const LOCALE_STORAGE_KEY = 'color-scheme';
-
 refs.switcher.addEventListener('change', handleSwitcherChange);
 
-setColorScheme();
+activateSavedScheme();
 
 function handleSwitcherChange(e) {
-	localStorage.setItem(LOCALE_STORAGE_KEY, e.target.value);
+	const chosedScheme = e.target.value;
 
-	if (e.target.value === 'auto') {
-		refs.light.media = '(prefers-color-scheme: light)';
-		refs.dark.media = '(prefers-color-scheme: dark)';
+	changeScheme(chosedScheme);
+
+	if (chosedScheme === 'auto') {
+		removeSavedScheme();
+		return;
 	}
-	if (e.target.value === 'light') {
-		refs.light.media = 'all';
-		refs.dark.media = 'not all';
-	}
-	if (e.target.value === 'dark') {
-		refs.light.media = 'not all';
-		refs.dark.media = 'all';
-	}
+
+	saveScheme(chosedScheme);
 }
 
-function setColorScheme() {
-	const colorScheme = localStorage.getItem(LOCALE_STORAGE_KEY);
-	if (!colorScheme) return;
+function activateSavedScheme() {
+	const savedScheme = getSavedScheme();
 
+	if (!savedScheme) return;
+
+	changeScheme(savedScheme);
+
+	setSwitcher(savedScheme);
+}
+
+function changeScheme(colorScheme) {
 	if (colorScheme === 'auto') {
 		refs.light.media = '(prefers-color-scheme: light)';
 		refs.dark.media = '(prefers-color-scheme: dark)';
-
-		[...refs.switcherRadios].find(item => item.value === 'auto').checked = true;
+		return;
 	}
-	if (colorScheme === 'light') {
-		refs.light.media = 'all';
-		refs.dark.media = 'not all';
 
-		[...refs.switcherRadios].find(
-			item => item.value === 'light'
-		).checked = true;
-	}
-	if (colorScheme === 'dark') {
-		refs.light.media = 'not all';
-		refs.dark.media = 'all';
+	refs.light.media = colorScheme === 'light' ? 'all' : 'not all';
+	refs.dark.media = colorScheme === 'dark' ? 'all' : 'not all';
+}
 
-		[...refs.switcherRadios].find(item => item.value === 'dark').checked = true;
-	}
+function setSwitcher(colorScheme) {
+	[...refs.switcherRadios].find(
+		item => item.value === colorScheme
+	).checked = true;
+}
+
+function saveScheme(colorScheme) {
+	localStorage.setItem(LOCALE_STORAGE_KEY, colorScheme);
+}
+
+function getSavedScheme() {
+	return localStorage.getItem(LOCALE_STORAGE_KEY);
+}
+
+function removeSavedScheme() {
+	localStorage.removeItem(LOCALE_STORAGE_KEY);
 }
